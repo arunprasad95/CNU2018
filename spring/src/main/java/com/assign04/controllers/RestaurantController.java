@@ -1,6 +1,7 @@
 package com.assign04.controllers;
 
 
+import com.assign04.entities.Cuisine;
 import com.assign04.entities.Restaurant;
 import com.assign04.repositories.CuisineRepository;
 import com.assign04.repositories.RestaurantRepository;
@@ -21,6 +22,31 @@ public class RestaurantController {
     private RestaurantRepository RR;
     @Autowired
     private CuisineRepository CR;
+
+    private Boolean validateRestaurant(Restaurant restaurant) {
+        if (!(
+                restaurant.getName() != null &&
+                        restaurant.getCity() != null &&
+                        restaurant.getLatitude() != null &&
+                        restaurant.getLongitude() != null &&
+                        restaurant.getRating() != null &&
+                        restaurant.getIs_open() != null &&
+                        restaurant.getRating() >= 0 &&
+                        restaurant.getLongitude() >= -180 &&
+                        restaurant.getLongitude() <= 180 &&
+                        restaurant.getLatitude() >= -90 &&
+                        restaurant.getLatitude() <= 90
+        )) return false;
+
+        for (Cuisine cuisine : restaurant.getCuisineObjects()) {
+            if (cuisine.getName() == null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 
     @GetMapping(path="/{restaurantId}")
     public @ResponseBody
@@ -44,7 +70,7 @@ public class RestaurantController {
     @PostMapping(path = "")
     public @ResponseBody ResponseEntity<HTTPResponse> createRestaurant(@RequestBody Restaurant restaurant) {
         try {
-            if (restaurant.validate()) RR.save(restaurant);
+            if (validateRestaurant(restaurant)) RR.save(restaurant);
             else throw new Exception("INVALID INPUT");
         }
         catch (Exception e) {
@@ -72,7 +98,7 @@ public class RestaurantController {
         try {
             Restaurant oldRestaurant = RR.findById(restaurantId);
             if (oldRestaurant == null) return new ResponseEntity<HTTPResponse>(new FailureResponse("Restaurant not found"), HttpStatus.BAD_REQUEST);
-            if (restaurant.validate()) {
+            if (validateRestaurant(restaurant)) {
                 restaurant.setId(restaurantId);
                 RR.save(restaurant);
             }
