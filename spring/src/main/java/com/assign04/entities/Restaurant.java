@@ -1,8 +1,11 @@
 package com.assign04.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,11 +15,23 @@ public class Restaurant {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+    @NotNull
+    @Size(max = 255)
     private String name;
+    @NotNull
+    @ColumnDefault("0")
     private Float rating;
+    @NotNull
+    @Size(max = 255)
     private String city;
+    @NotNull
+    @Column(name="latitude", columnDefinition="Decimal(10,8)")
     private Float latitude;
+    @NotNull
+    @Column(name="longitude", columnDefinition="Decimal(11,8)")
     private Float longitude;
+    @NotNull
+    @ColumnDefault("1")
     private Boolean is_open;
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL,
@@ -69,6 +84,15 @@ public class Restaurant {
     public Set<Cuisine> getCuisineObjects() {
         return cuisines;
     }
+
+    public Set<String> getCuisines() {
+        Set<String> cuisineNames = new HashSet<>();
+        for (Cuisine cuisine: cuisines) {
+            cuisineNames.add(cuisine.getName());
+        }
+
+        return cuisineNames;
+    }
     public Set<Item> getItems() {
         return items;
     }
@@ -94,15 +118,4 @@ public class Restaurant {
         return is_open;
     }
 
-    public boolean validate()
-    {
-        if((id==null)||(name==null)||(city==null)||(is_open==null))
-            return false;
-        for(Cuisine cuisine : cuisines)
-            if( cuisine.getName()== null)
-                return false;
-
-            return true;
-
-    }
 }
