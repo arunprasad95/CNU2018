@@ -113,23 +113,10 @@ public class RestaurantController {
     }
 
     @GetMapping(path="")
-    public @ResponseBody
-    ResponseEntity<HTTPResponse> getRestaurants(
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "cuisine", required = false) String cuisine,
-            @RequestParam(value = "city", required = false) String city) {
+    public @ResponseBody Iterable<Restaurant> getRestaurants() {
 
-        Set<Restaurant> restaurants;
-        if (name == null) name = "";
-        if (city == null) city = "";
-        if (cuisine == null) {
-            restaurants = RR.findAllByNameContainingAndCityContaining(name, city);
-        }
-        else {
-            restaurants = RR.findAllByNameContainingAndCityContainingAndCuisineContaining(name, city, cuisine);
-        }
-
-        return new ResponseEntity<HTTPResponse>(new SuccessResponse(restaurants), HttpStatus.OK);
+        // This returns a JSON or XML with the users
+        return RR.findAll();
     }
 
 }

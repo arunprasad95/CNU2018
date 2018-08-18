@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "items")
@@ -14,7 +16,11 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonProperty("id")
     private Integer id;
+
+    @NotNull
+    @Size(max = 255)
     private String name;
+    @NotNull
     private Float price;
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
@@ -44,10 +50,5 @@ public class Item {
     }
     public Restaurant getRestaurant() {
         return restaurant;
-    }
-    public boolean validate(){
-        if(price.equals(null)) return false;
-        if(name.equals(null))  return false;
-        return true;
     }
 }

@@ -23,6 +23,10 @@ public class ItemController {
     @Autowired
     private RestaurantRepository RR;
 
+    private Boolean isValidItem(Item item) {
+        return (item.getName() != null && item.getPrice() != null);
+    }
+
     @GetMapping(path = "/{itemId}")
     public @ResponseBody
     ResponseEntity<HTTPResponse> getItem(@PathVariable("restaurantId") Integer restaurantId, @PathVariable("itemId") Integer itemId) throws Exception {
@@ -75,7 +79,7 @@ public class ItemController {
             if (restaurant == null) return new ResponseEntity<HTTPResponse>(new FailureResponse("Restaurant not found"), HttpStatus.BAD_REQUEST);
             Item oldItem = IR.findById(itemId);
             if (oldItem == null || !oldItem.getRestaurant().getId().equals(restaurantId)) return new ResponseEntity<HTTPResponse>(new FailureResponse("Item not found"), HttpStatus.BAD_REQUEST);
-            if (item.validate()) {
+            if (isValidItem(item)) {
                 item.setId(itemId);
                 item.setRestaurant(restaurant);
                 IR.save(item);

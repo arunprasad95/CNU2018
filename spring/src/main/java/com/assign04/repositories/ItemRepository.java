@@ -8,6 +8,4 @@ import java.util.Set;
 
 public interface ItemRepository extends CrudRepository<Item, Long> {
     public Item findById(Integer id);
-    public Set<Item> findAllByNameContainingAndPriceBetween(String name, Float minPrice, Float maxPrice);
-
 }
