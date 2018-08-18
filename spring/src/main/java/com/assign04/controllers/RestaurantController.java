@@ -19,9 +19,10 @@ import java.util.Set;
 @RequestMapping(path="/api/restaurants")
 public class RestaurantController {
     @Autowired
-    private RestaurantRepository RR;
+    private RestaurantRepository restaurantRepository;
+
     @Autowired
-    private CuisineRepository CR;
+    private CuisineRepository cuisineRepository;
 
     private Boolean validateRestaurant(Restaurant restaurant) {
         if (!(
@@ -47,16 +48,11 @@ public class RestaurantController {
         return true;
     }
 
-
     @GetMapping(path="/{restaurantId}")
-    public @ResponseBody
-    ResponseEntity<HTTPResponse> getRestaurant(
-            @PathVariable("restaurantId") Integer restaurantId
-    ) throws Exception {
-
+    public @ResponseBody ResponseEntity<HTTPResponse> getRestaurant(@PathVariable("restaurantId") Integer restaurantId) throws Exception {
         Restaurant restaurant;
         try {
-            restaurant = RR.findById(restaurantId);
+            restaurant = restaurantRepository.findById(restaurantId);
             if (restaurant == null) {
                 return new ResponseEntity<HTTPResponse>(HttpStatus.NOT_FOUND);
             }
@@ -70,7 +66,7 @@ public class RestaurantController {
     @PostMapping(path = "")
     public @ResponseBody ResponseEntity<HTTPResponse> createRestaurant(@RequestBody Restaurant restaurant) {
         try {
-            if (validateRestaurant(restaurant)) RR.save(restaurant);
+            if (validateRestaurant(restaurant)) restaurantRepository.save(restaurant);
             else throw new Exception("INVALID INPUT");
         }
         catch (Exception e) {
@@ -83,9 +79,9 @@ public class RestaurantController {
     public @ResponseBody ResponseEntity<HTTPResponse> deleteRestaurant(@PathVariable("restaurantId") Integer restaurantId) throws Exception {
         Restaurant restaurant;
         try {
-            restaurant = RR.findById(restaurantId);
+            restaurant = restaurantRepository.findById(restaurantId);
             if (restaurant == null) throw new Exception("Restaurant Not Found");
-            RR.delete(restaurant);
+            restaurantRepository.delete(restaurant);
         }
         catch (Exception e) {
             return new ResponseEntity<HTTPResponse>(new FailureResponse(e.getMessage()), HttpStatus.NOT_FOUND);
@@ -96,11 +92,11 @@ public class RestaurantController {
     @PutMapping(path="/{restaurantId}")
     public @ResponseBody ResponseEntity putRestaurant(@PathVariable("restaurantId") Integer restaurantId, @RequestBody Restaurant restaurant) throws Exception {
         try {
-            Restaurant oldRestaurant = RR.findById(restaurantId);
+            Restaurant oldRestaurant = restaurantRepository.findById(restaurantId);
             if (oldRestaurant == null) return new ResponseEntity<HTTPResponse>(new FailureResponse("Restaurant not found"), HttpStatus.BAD_REQUEST);
             if (validateRestaurant(restaurant)) {
                 restaurant.setId(restaurantId);
-                RR.save(restaurant);
+                restaurantRepository.save(restaurant);
             }
             else {
                 throw new Exception("Invalid input");
@@ -116,7 +112,7 @@ public class RestaurantController {
     public @ResponseBody Iterable<Restaurant> getRestaurants() {
 
         // This returns a JSON or XML with the users
-        return RR.findAll();
+        return restaurantRepository.findAll();
     }
 
 }

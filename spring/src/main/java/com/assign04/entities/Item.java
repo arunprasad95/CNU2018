@@ -14,7 +14,6 @@ import javax.validation.constraints.Size;
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonProperty("id")
     private Integer id;
 
     @NotNull

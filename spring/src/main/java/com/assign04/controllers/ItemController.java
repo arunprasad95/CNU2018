@@ -16,42 +16,40 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(path="/api/restaurants/{restaurantId}/items")
-
 public class ItemController {
     @Autowired
-    private ItemRepository IR;
+    private ItemRepository itemRepository;
+
     @Autowired
-    private RestaurantRepository RR;
+    private RestaurantRepository restaurantRepository;
 
     private Boolean isValidItem(Item item) {
         return (item.getName() != null && item.getPrice() != null);
     }
 
-    @GetMapping(path = "/{itemId}")
-    public @ResponseBody
-    ResponseEntity<HTTPResponse> getItem(@PathVariable("restaurantId") Integer restaurantId, @PathVariable("itemId") Integer itemId) throws Exception {
+    @GetMapping(path="/{itemId}")
+    public @ResponseBody ResponseEntity<HTTPResponse> getItem(@PathVariable("restaurantId") Integer restaurantId, @PathVariable("itemId") Integer itemId) throws Exception {
         Item item;
-        try
-        {
-            item = IR.findById(itemId);
-            if(item == null || (item.getRestaurant().getId()!=restaurantId))
+        try {
+            item = itemRepository.findById(itemId);
+            if (item == null || !item.getRestaurant().getId().equals(restaurantId)) {
                 return new ResponseEntity<HTTPResponse>(HttpStatus.NOT_FOUND);
+            }
         }
         catch (Exception e) {
             return new ResponseEntity<HTTPResponse>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<HTTPResponse>(new SuccessResponse(item), HttpStatus.OK);
-
     }
 
     @PostMapping(path="", produces = "application/json", consumes = "application/json")
     public @ResponseBody ResponseEntity<HTTPResponse> createItem(@PathVariable("restaurantId") Integer restaurantId, @RequestBody Item item) throws Exception {
         Restaurant restaurant;
         try {
-            restaurant = RR.findById(restaurantId);
+            restaurant = restaurantRepository.findById(restaurantId);
             if (restaurant == null) throw new Exception("Restaurant not found");
             item.setRestaurant(restaurant);
-            IR.save(item);
+            itemRepository.save(item);
         }
         catch (Exception e) {
             return new ResponseEntity<HTTPResponse>(new FailureResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
@@ -62,27 +60,28 @@ public class ItemController {
     @DeleteMapping(path="/{itemId}")
     public @ResponseBody ResponseEntity<HTTPResponse> deleteItem(@PathVariable("restaurantId") Integer restaurantId, @PathVariable("itemId") Integer itemId) {
         try {
-            Item item = IR.findById(itemId);
+            Item item = itemRepository.findById(itemId);
             if (item == null || !item.getRestaurant().getId().equals(restaurantId)) {
                 throw new Exception("Restaurant not found");
             }
-            IR.delete(item);
+            itemRepository.delete(item);
         } catch (Exception e) {
             return new ResponseEntity<HTTPResponse>(new FailureResponse(e.getMessage()), HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<HTTPResponse>(HttpStatus.NO_CONTENT);
     }
+
     @PutMapping(path="/{itemId}")
     public @ResponseBody ResponseEntity putItem(@PathVariable("restaurantId") Integer restaurantId, @PathVariable("itemId") Integer itemId, @RequestBody Item item) throws Exception {
         try {
-            Restaurant restaurant = RR.findById(restaurantId);
+            Restaurant restaurant = restaurantRepository.findById(restaurantId);
             if (restaurant == null) return new ResponseEntity<HTTPResponse>(new FailureResponse("Restaurant not found"), HttpStatus.BAD_REQUEST);
-            Item oldItem = IR.findById(itemId);
+            Item oldItem = itemRepository.findById(itemId);
             if (oldItem == null || !oldItem.getRestaurant().getId().equals(restaurantId)) return new ResponseEntity<HTTPResponse>(new FailureResponse("Item not found"), HttpStatus.BAD_REQUEST);
             if (isValidItem(item)) {
                 item.setId(itemId);
                 item.setRestaurant(restaurant);
-                IR.save(item);
+                itemRepository.save(item);
             }
         }
         catch (Exception e) {
@@ -94,7 +93,8 @@ public class ItemController {
 
     @GetMapping(path="")
     public @ResponseBody Iterable<Item> getItems(@PathVariable("restaurantId") Integer restaurantId) throws Exception {
-        Restaurant restaurant = RR.findById(restaurantId);
+        Restaurant restaurant = restaurantRepository.findById(restaurantId);
         return restaurant.getItems();
     }
+
 }
