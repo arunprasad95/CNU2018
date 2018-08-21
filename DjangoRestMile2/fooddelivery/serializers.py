@@ -51,7 +51,7 @@ class ItemSerializer(serializers.ModelSerializer):
         temp = {}
         temp["id"]=instance.id
         temp["name"]=instance.name
-        temp["price"]=str(float(instance.price))
+        temp["price"]="$"+str(float(instance.price))
         temp["restaurant"]=restaurant
         return temp
 
