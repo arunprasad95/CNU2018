@@ -44,7 +44,7 @@ class ItemSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         restaurant = model_to_dict(instance.restaurant_id)
         restaurant['cuisines'] = map(lambda x:x.name ,Cuisine.objects.filter(restaurant_id=instance.restaurant_id) )
-        temp = map()
+        temp = {}
         temp["id"]=instance.id
         temp["name"]=instance.name
         temp["price"]=str(float(instance.price))
